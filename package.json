@@ -1,0 +1,28 @@
+{
+  "name": "bildstuff_api",
+  "version": "1.0.0",
+  "description": "Buildstuff conference app api backend.",
+  "main": "index.js",
+  "scripts": {
+    "test": "",
+    "start": "node ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/justuxlt1/bs-stpp-api.git"
+  },
+  "author": "Justas Dovydaitis",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/justuxlt1/bs-stpp-api/issues"
+  },
+  "homepage": "https://github.com/justuxlt1/bs-stpp-api#readme",
+  "dependencies": {
+    "epilogue": "^0.7.1",
+    "express": "^4.17.1",
+    "sequelize": "^5.18.4",
+    "sqlite3": "^4.1.0",
+    "util": "^0.12.1"
+  },
+  "devDependencies": {}
+}
