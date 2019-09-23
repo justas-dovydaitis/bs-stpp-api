@@ -6,6 +6,4 @@ module.exports = (router) => {
         .post(controller.create)
         .get(validateToken, controller.getAll);
     router.route('/login').post(controller.login);
-    router.route('/logout').post(controller.login);
-    router.route('/logoutall').post(controller.login);
 };

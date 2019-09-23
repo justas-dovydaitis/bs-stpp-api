@@ -13,8 +13,7 @@ module.exports = {
             let status = 201;
             if (!err) {
                 const { name, email, password } = req.body;
-                const user = new User({ name, email, password }); // document = instance of a model
-                // TODO: We can hash the password here before we insert instead of in the model
+                const user = new User({ name, email, password });
                 user.save((err, user) => {
                     if (!err) {
                         result.status = status;
@@ -87,27 +86,38 @@ module.exports = {
             let status = 200;
             if (!err) {
                 const payload = req.decoded;
-                console.log(payload.user);
-                if (payload && payload.isAdmin === true) {
-                    User.find({}, (err, users) => {
-                        if (!err) {
-                            result.status = status;
-                            result.error = err;
-                            result.result = users;
+                User.findOne({ email: payload.user }, (err, requestingUser) => {
+                    if (requestingUser.isAdmin === false) {
+                        result.status = 403;
+                        result.error = 'Access forbidden. You must be admin to see all users';
+                        result.result = {};
+                        res.status(403).send(result);
+                    }
+                    else {
+                        if (payload ) {
+                            User.find({}, (err, users) => {
+                                if (!err) {
+                                    result.status = status;
+                                    result.error = err;
+                                    result.result = users;
+                                } else {
+                                    status = 500;
+                                    result.status = status;
+                                    result.error = err;
+                                }
+                                res.status(status).send(result);
+                            });
                         } else {
-                            status = 500;
+                            status = 401;
                             result.status = status;
-                            result.error = err;
+                            result.error = 'Authentication error';
+                            res.status(status).send(result);
                         }
-                        res.status(status).send(result);
-                    });
-                } else {
-                    status = 401;
-                    result.status = status;
-                    result.error = 'Authentication error';
-                    res.status(status).send(result);
-                }
-            } else {
+                    }
+
+                });
+            }
+            else {
                 status = 500;
                 result.status = status;
                 result.error = err;
