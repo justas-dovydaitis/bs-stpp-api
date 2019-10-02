@@ -86,36 +86,25 @@ module.exports = {
             let status = 200;
             if (!err) {
                 const payload = req.decoded;
-                User.findOne({ email: payload.user }, (err, requestingUser) => {
-                    if (requestingUser.isAdmin === false) {
-                        result.status = 403;
-                        result.error = 'Access forbidden. You must be admin to see all users';
-                        result.result = {};
-                        res.status(403).send(result);
-                    }
-                    else {
-                        if (payload ) {
-                            User.find({}, (err, users) => {
-                                if (!err) {
-                                    result.status = status;
-                                    result.error = err;
-                                    result.result = users;
-                                } else {
-                                    status = 500;
-                                    result.status = status;
-                                    result.error = err;
-                                }
-                                res.status(status).send(result);
-                            });
-                        } else {
-                            status = 401;
+                if (payload) {
+                    User.find({}, (err, users) => {
+                        if (!err) {
                             result.status = status;
-                            result.error = 'Authentication error';
-                            res.status(status).send(result);
+                            result.error = err;
+                            result.result = users;
+                        } else {
+                            status = 500;
+                            result.status = status;
+                            result.error = err;
                         }
-                    }
-
-                });
+                        res.status(status).send(result);
+                    });
+                } else {
+                    status = 401;
+                    result.status = status;
+                    result.error = 'Authentication error';
+                    res.status(status).send(result);
+                }
             }
             else {
                 status = 500;
@@ -124,5 +113,58 @@ module.exports = {
                 res.status(status).send(result);
             }
         });
+    },
+    getOne: (req, res) => {
+        mongoose.connect(connUri, { useNewUrlParser: true }, (err) => {
+            let result = {};
+            let status = 200;
+            if (!err) {
+                User.findOne({ _id: req.params.id }, (err, user) => {
+                    if (!err && user) {
+                        res.status(status).send(user);
+                    }
+                    else {
+                        status = 404;
+                        result.status = status;
+                        result.error = 'user not found';
+                        res.status(status).send(result);
+                    }
+                });
+            }
+        });
+    },
+    update: (req, res) => {
+        mongoose.connect(connUri, { useNewUrlParser: true }, (err) => {
+            let result = {};
+            let status = 200;
+            if (!err) {
+                User.findOne({ _id: req.params.id }, (err, user) => {
+                    if (!err && user) {
+                        user.name = req.body.name ? req.body.name : user.name;
+                        user.password = req.body.password ? req.body.password : user.password;
+                        user.save((err, user) => {
+                            if (!err) {
+                                result.status = status;
+                                result.result = user;
+                            } else {
+                                status = 500;
+                                result.status = status;
+                                result.error = err;
+                            }
+                            res.status(status).send(result);
+                        });
+                    }
+                    else {
+                        status = 404;
+                        result.status = status;
+                        result.error = 'user not found';
+                        res.status(status).send(result);
+                    }
+                });
+            }
+        });
+    },
+    delete: (req, res) => {
+        res.status(501).send({ error: 'not implemented yet' });
     }
 };

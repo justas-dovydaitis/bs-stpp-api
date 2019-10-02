@@ -1,6 +1,10 @@
 /* eslint-disable require-atomic-updates */
 /* global process */
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+const User = require('../Models/User');
+const connUri = process.env.MONGODB_URL;
+
 
 const validateToken = async (req, res, next) => {
     const authorizationHeader = req.header('Authorization');
@@ -40,4 +44,55 @@ const validateToken = async (req, res, next) => {
         res.status(401).send(result);
     }
 };
-module.exports = { validateToken };
+
+const checkIfAdmin = async (req, res, next) => {
+    let result = {};
+    mongoose.connect(connUri, { useNewUrlParser: true }, (err) => {
+        if (!err) {
+            const payload = req.decoded;
+            User.findOne({ email: payload.user }, (err, requestingUser) => {
+                if (requestingUser.isAdmin === false) {
+                    result.status = 403;
+                    result.error = 'Access forbidden.';
+                    result.result = {};
+                    res.status(403).send(result);
+                }
+                else
+                    next();
+            });
+        }
+        else {
+            let status = 500;
+            result.status = status;
+            result.error = err;
+            res.status(status).send(result);
+        }
+    });
+};
+const checkUser = async (req, res, next) => {
+    let result = {};
+    mongoose.connect(connUri, { useNewUrlParser: true }, (err) => {
+        if (!err) {
+            const payload = req.decoded;
+            User.findOne({ email: payload.user }, (err, requestingUser) => {
+                if (requestingUser._id.toString() === req.params.id) {
+                    next();
+
+                }
+                else {
+                    result.status = 403;
+                    result.error = 'Access forbidden.';
+                    result.result = {};
+                    res.status(403).send(result);
+                }
+            });
+        }
+        else {
+            let status = 500;
+            result.status = status;
+            result.error = err;
+            res.status(status).send(result);
+        }
+    });
+};
+module.exports = { validateToken, checkIfAdmin, checkUser };
