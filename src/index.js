@@ -44,7 +44,7 @@ app.use(parser.any());
 app.use('/uploads', express.static('uploads'));
 app.use('/api/', routes(router));
 
-app.listen(`${stage.port}`, () => {
+app.listen(`80`, () => {
     console.log(`Server now listening at localhost:${stage.port}`);
 });
 
