@@ -9,7 +9,7 @@ module.exports = (router) => {
         .get(utils.validateToken, utils.checkIfAdmin, controller.getAll);
     router.route('/users/:id')
         // Get user by id.
-        .get(utils.validateToken, utils.checkIfAdmin, controller.getOne)
+        .get(utils.validateToken, utils.checkUser, controller.getOne)
         // Update user by id.
         .put(utils.validateToken, utils.checkUser, controller.update)
         // Delete user by id.

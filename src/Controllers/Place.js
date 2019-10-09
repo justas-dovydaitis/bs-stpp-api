@@ -1,13 +1,12 @@
+/* eslint-disable no-unused-vars */
 /* global process */
 const mongoose = require('mongoose');
-const Speaker = require('../Models/Speaker');
-const fs = require('fs');
+const Place = require('../Models/Place');
 
 const connUri = process.env.MONGODB_URL;
 
 module.exports = {
     create: (req, res) => {
-        // eslint-disable-next-line no-unused-vars
         // mongoose.connect(connUri, { useNewUrlParser: true }, (err) => {
         //     var newSpeaker = new Speaker();
         //     console.log(req);
@@ -18,7 +17,7 @@ module.exports = {
         //     newSpeaker.description = req.body.description;
         //     newSpeaker.save();
 
-            res.status(501).send({ error: 'not implemented yet' });
+        res.status(501).send({ error: 'not implemented yet' });
         // });
     },
     getAll: (req, res) => {

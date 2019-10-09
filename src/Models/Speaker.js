@@ -5,25 +5,22 @@ const Schema = mongoose.Schema;
 
 const speakerSchema = new Schema({
     name: {
-        type: 'Date',
+        type: 'String',
         required: true,
-        min: new Date()
+    },
+    image: {
+        data: 'Buffer',
+        contentType: 'String'
     },
     job: {
-        type: 'Date',
-        required: true,
-        min: new Date()
+        type: 'String',
+        required: true
     },
     description: {
         type: 'String',
         required: true,
         trim: true
     },
-    photo: {
-        type: 'String',
-        required: false,
-        trim: true
-    }
 });
 
 module.exports = mongoose.model('speaker', speakerSchema);

@@ -74,7 +74,9 @@ const checkUser = async (req, res, next) => {
     mongoose.connect(connUri, { useNewUrlParser: true }, (err) => {
         if (!err) {
             const payload = req.decoded;
+            console.log('payload:', payload);
             User.findOne({ email: payload.user }, (err, requestingUser) => {
+                console.log(requestingUser);
                 if (requestingUser._id.toString() === req.params.id) {
                     next();
 

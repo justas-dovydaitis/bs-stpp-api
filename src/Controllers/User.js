@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../Models/User');
+const genericRequests = require('./Generic');
 
 const connUri = process.env.MONGODB_URL;
 
@@ -115,54 +116,10 @@ module.exports = {
         });
     },
     getOne: (req, res) => {
-        mongoose.connect(connUri, { useNewUrlParser: true }, (err) => {
-            let result = {};
-            let status = 200;
-            if (!err) {
-                User.findOne({ _id: req.params.id }, (err, user) => {
-                    if (!err && user) {
-                        res.status(status).send(user);
-                    }
-                    else {
-                        status = 404;
-                        result.status = status;
-                        result.error = 'user not found';
-                        res.status(status).send(result);
-                    }
-                });
-            }
-        });
+        genericRequests.getOne(User, req, res);
     },
     update: (req, res) => {
-        mongoose.connect(connUri, { useNewUrlParser: true }, (err) => {
-            let result = {};
-            let status = 200;
-            if (!err) {
-                User.findOne({ _id: req.params.id }, (err, user) => {
-                    if (!err && user) {
-                        user.name = req.body.name ? req.body.name : user.name;
-                        user.password = req.body.password ? req.body.password : user.password;
-                        user.save((err, user) => {
-                            if (!err) {
-                                result.status = status;
-                                result.result = user;
-                            } else {
-                                status = 500;
-                                result.status = status;
-                                result.error = err;
-                            }
-                            res.status(status).send(result);
-                        });
-                    }
-                    else {
-                        status = 404;
-                        result.status = status;
-                        result.error = 'user not found';
-                        res.status(status).send(result);
-                    }
-                });
-            }
-        });
+        genericRequests.updateById(User, req, res);
     },
     delete: (req, res) => {
         res.status(501).send({ error: 'not implemented yet' });
