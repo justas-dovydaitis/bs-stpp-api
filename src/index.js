@@ -3,7 +3,7 @@ require('dotenv').config(); // Sets up dotenv as soon as our application starts
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const logger = require('morgan');
+// const logger = require('morgan');
 
 const multer = require('multer');
 const cloudinary = require('cloudinary');
@@ -38,9 +38,9 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(parser.any());
 
-if (environment !== 'production') {
-    app.use(logger('dev'));
-}
+// if (environment !== 'production') {
+//     app.use(logger('dev'));
+// }
 app.use('/uploads', express.static('uploads'));
 app.use('/api/', routes(router));
 
