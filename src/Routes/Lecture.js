@@ -9,4 +9,6 @@ module.exports = (router) => {
         .get(/*utils.validateToken,*/ controller.getOne)
         .put(/*utils.validateToken, utils.checkIfAdmin,*/ controller.update)
         .delete(/*utils.validateToken, utils.checkIfAdmin,*/ controller.delete);
+    router.route('/lectures/:lectureId/speakers');
+    router.route('/lectures/:lectureId/speakers/:speakerId');
 };

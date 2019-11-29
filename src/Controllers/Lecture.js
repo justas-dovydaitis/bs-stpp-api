@@ -6,43 +6,43 @@ const connUri = process.env.MONGODB_URL;
 
 module.exports = {
     create: (req, res) => {
-        //     mongoose.connect(connUri, { useNewUrlParser: true }, (err) => {
-        //         let result = {};
-        //         let status = 201;
-        //         if (!err) {
-        //             const {
-        //                 starts,
-        //                 ends,
-        //                 name,
-        //                 description,
-        //                 speakers
-        //             } = req.body;
-        //             const lecture = new Lecture({
-        //                 starts,
-        //                 ends,
-        //                 name,
-        //                 description,
-        //                 speakers
-        //             });
-        //             lecture.save((err, lecture) => {
-        //                 if (!err) {
-        //                     result.status = status;
-        //                     result.result = lecture;
-        //                 } else {
-        //                     status = 500;
-        //                     result.status = status;
-        //                     result.error = err;
-        //                 }
-        //                 res.status(status).send(result);
-        //             });
-        //         } else {
-        //             status = 500;
-        //             result.status = status;
-        //             result.error = err;
-        //             res.status(status).send(result);
-        //         }
-        //     });
-        res.status(501).send({ error: 'not implemented yet' });
+            mongoose.connect(connUri, { useNewUrlParser: true }, (err) => {
+                let result = {};
+                let status = 201;
+                if (!err) {
+                    const {
+                        starts,
+                        ends,
+                        name,
+                        description,
+                        speakers
+                    } = req.body;
+                    const lecture = new Lecture({
+                        starts,
+                        ends,
+                        name,
+                        description,
+                        speakers
+                    });
+                    lecture.save((err, lecture) => {
+                        if (!err) {
+                            result.status = status;
+                            result.result = lecture;
+                        } else {
+                            status = 500;
+                            result.status = status;
+                            result.error = err;
+                        }
+                        res.status(status).send(result);
+                    });
+                } else {
+                    status = 500;
+                    result.status = status;
+                    result.error = err;
+                    res.status(status).send(result);
+                }
+            });
+        // res.status(501).send({ error: 'not implemented yet' });
     },
     getAll: (req, res) => {
         // mongoose.connect(connUri, { useNewUrlParser: true }, (err) => {

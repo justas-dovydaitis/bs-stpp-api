@@ -5,45 +5,82 @@ const mongoose = require('mongoose');
 const User = require('../Models/User');
 const connUri = process.env.MONGODB_URL;
 
+const generateAccessToken = (user) => {
+    return accessToken = jwt.sign(
+        {
+            user: user.email,
+            role: user.role
+        },
+        process.env.ACCESS_SECRET,
+        {
+            expiresIn: process.env.ACCESS_TOKEN_LIFE,
+            issuer: process.env.TOKEN_ISSUER
+        }
+    );
+}
 
-const validateToken = async (req, res, next) => {
-    const authorizationHeader = req.header('Authorization');
-    let result;
-    if (authorizationHeader) {
-        if (authorizationHeader.startsWith('Bearer')) {
-            const token = req.headers.authorization.split(' ')[1]; // Bearer <token>
-            const options = {
-                expiresIn: '2d',
-                issuer: 'https://buildstuff.lt'
-            };
-            try {
-                // verify makes sure that the token hasn't expired and has been issued by us
-                result = jwt.verify(token, process.env.JWT_SECRET, options);
+const generateRefreshToken = (user) => {
+    return refreshToken = jwt.sign(
+        {
+            user: user.email,
+            password: user.password,
+        },
+        process.env.REFRESH_SECRET,
+        {
+            expiresIn: process.env.REFRESH_TOKEN_LIFE,
+            issuer: process.env.TOKEN_ISSUER
+        }
+    );
+}
 
-                // Let's pass back the decoded token to the request object
-                req.decoded = result;
-                // We call next to pass execution to the subsequent middleware
-                next();
-            } catch (err) {
-                // Throw an error just in case anything goes wrong with verification
-                throw new Error(err);
+const validateRefreshToken = async (req, res, next) => {
+    const token = req.body.token || req.query.token || req.headers['x-access-token'];
+    if (token) {
+
+        jwt.verify(token, process.env.REFRESH_SECRET, (err, decoded) => {
+            if (err) {
+                console.log(err)
+                return res.status(401).json(
+                    {
+                        "error": true,
+                        "message": 'Unauthorised access.'
+                    });
             }
-        }
-        else {
-            result = {
-                error: 'Bearer token type expected',
-                status: 401
-            };
-            res.status(401).send(result);
-        }
-    } else {
-        result = {
-            error: 'Authorization header must be provided',
-            status: 401
-        };
-        res.status(401).send(result);
+            req.decoded = decoded;
+            next();
+        });
     }
-};
+    else {
+        return res.status(403).send({
+            "error": true,
+            "message": 'No token provided.'
+        });
+    }
+}
+const validateAccessToken = async (req, res, next) => {
+    const token = req.body.token || req.query.token || req.headers['x-access-token'];
+    if (token) {
+
+        jwt.verify(token, process.env.ACCESS_SECRET, (err, decoded) => {
+            if (err) {
+                console.log(err)
+                return res.status(401).json(
+                    {
+                        "error": true,
+                        "message": 'Unauthorised access.'
+                    });
+            }
+            req.decoded = decoded;
+            next();
+        });
+    }
+    else {
+        return res.status(403).send({
+            "error": true,
+            "message": 'No token provided.'
+        });
+    }
+}
 
 const checkIfAdmin = async (req, res, next) => {
     let result = {};
@@ -97,4 +134,11 @@ const checkUser = async (req, res, next) => {
         }
     });
 };
-module.exports = { validateToken, checkIfAdmin, checkUser };
+module.exports = {
+    checkIfAdmin,
+    checkUser,
+    generateAccessToken,
+    generateRefreshToken,
+    validateAccessToken,
+    validateRefreshToken
+};

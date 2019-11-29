@@ -25,11 +25,11 @@ const userSchema = new Schema({
         required: true,
         trim: true
     },
-    isAdmin: {
-        type: Boolean,
-        required: false,
+    role: {
+        type: 'String',
+        required: true,
         trim: true,
-        default: false,
+        default: 'STANDARD',
     }
 });
 

@@ -3,11 +3,12 @@ require('dotenv').config(); // Sets up dotenv as soon as our application starts
 
 const express = require('express');
 const bodyParser = require('body-parser');
-// const logger = require('morgan');
+const logger = require('morgan');
 
 const multer = require('multer');
 const cloudinary = require('cloudinary');
 const cloudinaryStorage = require('multer-storage-cloudinary');
+const mongooseConn = require('./Utils/MongooseConnect');
 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
@@ -32,19 +33,21 @@ const stage = require('./config')[environment];
 
 const routes = require('./Routes/index.js');
 
+mongooseConn();
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(parser.any());
 
-// if (environment !== 'production') {
-//     app.use(logger('dev'));
-// }
-app.use('/uploads', express.static('uploads'));
+if (environment !== 'production') {
+    app.use(logger('dev'));
+}
+app.use('/uploads/', express.static('uploads'));
 app.use('/api/', routes(router));
 
-app.listen(`80`, () => {
+app.listen(`${stage.port}`, () => {
     console.log(`Server now listening at localhost:${stage.port}`);
 });
 
