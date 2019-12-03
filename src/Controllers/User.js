@@ -1,12 +1,4 @@
-/* global process */
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const User = require('../Models/User');
-const genericRequests = require('./Generic');
-
-const connUri = process.env.MONGODB_URL;
-
 module.exports = {
     create: (req, res) => {
         let result = {};
@@ -50,12 +42,51 @@ module.exports = {
         }
     },
     getOne: (req, res) => {
-        genericRequests.getOne(User, req, res);
+        User.findById(req.params.id)
+            .then((user) => {
+                if (user) {
+                    res.status(200).json();
+                }
+                else {
+                    res.status(404).json({ error: "Not found" });
+                }
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors
+                });
+            });
     },
     update: (req, res) => {
-        genericRequests.updateById(User, req, res);
+        User.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true })
+            .then((user) => {
+                if (user) {
+                    res.status(200).json();
+                }
+                else {
+                    res.status(404).json({ error: "Not found" });
+                }
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors
+                });
+            });
     },
     delete: (req, res) => {
-        res.status(501).send({ error: 'not implemented yet' });
+        User.findByIdAndDelete(req.params.id)
+            .then((user) => {
+                if (user) {
+                    res.status(204).json();
+                }
+                else {
+                    res.status(404).json({ error: "Not found" });
+                }
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors
+                });
+            });
     }
 };

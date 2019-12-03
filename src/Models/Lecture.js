@@ -24,8 +24,11 @@ const lectureShema = new Schema({
         trim: true,
     },
     speakers: {
-        type: ['String'],
+        type: ['ObjectId'],
         default: undefined
+    },
+    place: {
+        type: 'ObjectId'
     }
 });
 

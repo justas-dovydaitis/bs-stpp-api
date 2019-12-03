@@ -21,6 +21,9 @@ const speakerSchema = new Schema({
         required: true,
         trim: true
     },
+    lectures: {
+        type: ['ObjectId']
+    }
 });
 
 module.exports = mongoose.model('speaker', speakerSchema);

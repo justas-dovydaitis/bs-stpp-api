@@ -1,35 +1,249 @@
-/* eslint-disable no-unused-vars */
-/* global process */
-const mongoose = require('mongoose');
-const Place = require('../Models/Place');
 
-const connUri = process.env.MONGODB_URL;
+const Place = require('../Models/Place');
+const Lecture = require('../Models/Lecture');
 
 module.exports = {
     create: (req, res) => {
-        // mongoose.connect(connUri, { useNewUrlParser: true }, (err) => {
-        //     var newSpeaker = new Speaker();
-        //     console.log(req);
-        //     newSpeaker.image.data = fs.readFileSync(req.files.image.path);
-        //     newSpeaker.image.contentType = 'image/png';
-        //     newSpeaker.name = req.body.name;
-        //     newSpeaker.job = req.body.job;
-        //     newSpeaker.description = req.body.description;
-        //     newSpeaker.save();
-
-        res.status(501).send({ error: 'not implemented yet' });
-        // });
+        Place.create({ ...req.body, lectures: [] })
+            .then((newPlace) => {
+                res.status(201).json(newPlace);
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors,
+                });
+            });
     },
     getAll: (req, res) => {
-        res.status(501).send({ error: 'not implemented yet' });
+        Place.find({})
+            .then((places) => {
+                res.status(200).json(places);
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors,
+                })
+            });
     },
     getOne: (req, res) => {
-        res.status(501).send({ error: 'not implemented yet' });
+        Place.findById(req.params.id)
+            .then((place) => {
+                if (place) {
+                    res.status(200).json(place);
+                }
+                else {
+                    res.status(404).json({ error: 'Not found' });
+                }
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors,
+                })
+            });
     },
     update: (req, res) => {
-        res.status(501).send({ error: 'not implemented yet' });
+        Place.findByIdAndUpdate(req.params.id, { name: req.body.name }, { new: true })
+            .then((place) => {
+                if (place) {
+                    res.status(200).json({ place });
+                }
+                else {
+                    res.status(404).json({ error: 'Not found' });
+                }
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors,
+                })
+            });
     },
     delete: (req, res) => {
-        res.status(501).send({ error: 'not implemented yet' });
-    }
+        Place.findByIdAndDelete(req.params.id)
+            .then((place) => {
+                if (place) {
+                    res.status(204).json({});
+                }
+                else {
+                    res.status(404).json({ error: 'Not found' });
+                }
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors,
+                })
+            });
+    },
+    getLectures: (req, res) => {
+        Place.findById(req.params.id)
+            .then((place) => {
+                if (place) {
+                    Lecture.find({ place: place._id })
+                        .then((lectures) => {
+                            res.status(200).json(lectures);
+                        })
+                        .catch((errors) => {
+                            res.status(500).json({
+                                errors,
+                            })
+                        });
+
+                }
+                else {
+                    res.status(404).json({ error: 'Place not found' });
+                }
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors,
+                })
+            });
+    },
+    createLecture: (req, res) => {
+        Place.findById(req.params.id)
+            .then((place) => {
+                if (place) {
+                    Lecture.create({ ...req.body, place: place._id })
+                        .then((lecture) => {
+                            place.lectures.push(lecture._id);
+                            place.save();
+                            res.status(201).json(lecture);
+                        })
+                        .catch((errors) => {
+                            res.status(500).json({
+                                errors,
+                            })
+                        });
+                }
+                else {
+                    res.status(404).json({ Error: "{Place not found}" });
+                }
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors,
+                })
+            });
+    },
+    getLecture: (req, res) => {
+        Place.findById(req.params.placeId)
+            .then((place) => {
+                if (place) {
+                    Lecture.findOne({ place: place._id, _id: req.params.lectureId })
+                        .then((lecture) => {
+                            if (lecture) {
+                                res.status(200).json(lecture);
+                            }
+                            else {
+                                res.status(404).json({ error: 'Lecture not found' });
+                            }
+                        })
+                        .catch((errors) => {
+                            res.status(500).json({
+                                errors,
+                            })
+                        });
+                }
+                else {
+                    res.status(404).json({ error: 'Place not found' });
+                }
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors,
+                })
+            });
+    },
+    attachLecture: (req, res) => {
+        Place.findById(req.params.placeId)
+            .then((place) => {
+                if (place) {
+                    Lecture.findById(req.params.lectureId)
+                        .then((lecture) => {
+                            if (lecture) {
+                                if (place.lectures.includes(lecture._id) && lecture.place === place._id)
+                                    res.status(304).json();
+                                else {
+                                    lecture.place = place._id;
+                                    place.lectures.push(lecture._id);
+
+                                    lecture.save();
+                                    place.save();
+
+                                    res.status(200).json({});
+                                }
+                            }
+                            else {
+                                res.status(404).json({ error: 'Lecture not found' });
+                            }
+                        })
+                        .catch((errors) => {
+                            res.status(500).json({
+                                errors,
+                            })
+                        });
+                }
+                else {
+                    res.status(404).json({ error: 'Place not found' });
+                }
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors,
+                })
+            });
+    },
+    updateLecture: (req, res) => {
+        let query = { _id: req.params.lectureId, place: req.params.placeId };
+        Lecture.findOneAndUpdate(query, { ...req.body }, { new: true })
+            .then((lecture) => {
+                if (lecture) {
+                    res.status(200).json(lecture);
+                }
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors,
+                })
+            });
+    },
+    detachLecture: (req, res) => {
+        Place.findById(req.params.placeId)
+            .then((place) => {
+                if (place) {
+                    Lecture.findById(req.params.lectureId)
+                        .then((lecture) => {
+                            if (lecture) {
+                                if (place.lectures.includes(lecture._id) && lecture.place === place._id)
+                                    res.status(304).json();
+                                else {
+                                    lecture.place = ''
+                                    place.lectures = place.lectures.filter((lid) => { return lid != lecture._id })
+
+                                    lecture.save();
+                                    place.save();
+
+                                    res.status(200).json({});
+                                }
+                            }
+                            else {
+                                res.status(404).json({ error: 'Lecture not found' });
+                            }
+                        })
+                        .catch((errors) => {
+                            res.status(500).json({
+                                errors,
+                            })
+                        });
+                }
+                else {
+                    res.status(404).json({ error: 'Place not found' });
+                }
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors,
+                })
+            });
+    },
+
 };

@@ -3,12 +3,43 @@ const controller = require('../Controllers/Lecture');
 
 module.exports = (router) => {
     router.route('/lectures')
-        .post(/*utils.validateToken, utils.checkIfAdmin,*/ controller.create)
-        .get(/*utils.validateToken,*/ controller.getAll);
+
+        // Gets list of all lectures.
+        .get(controller.getAll)
+
+        // Creates a new lecture.
+        .post(controller.create);
+
     router.route('/lectures/:id')
-        .get(/*utils.validateToken,*/ controller.getOne)
-        .put(/*utils.validateToken, utils.checkIfAdmin,*/ controller.update)
-        .delete(/*utils.validateToken, utils.checkIfAdmin,*/ controller.delete);
-    router.route('/lectures/:lectureId/speakers');
-    router.route('/lectures/:lectureId/speakers/:speakerId');
+
+        // Gets a lecture by id.
+        .get(controller.getOne)
+
+        // Updates lecture by given id.
+        .put(controller.update)
+
+        // Deletes lecture by given id.
+        .delete(controller.delete);
+
+    router.route('/lectures/:lectureId/speakers')
+
+        // Gets speakers that speaks on given lecture.
+        .get(controller.getSpeakers)
+
+        // Creates a speaker and attaches to lecture.
+        .post(controller.createSpeaker)
+
+    router.route('/lectures/:lectureId/speakers/:speakerId')
+
+        // Get speaker by id.
+        .get(controller.getSpeaker)
+
+        // Attatch speaker to lecture.
+        .post(controller.attachSpeaker)
+
+        // Updates speaker.
+        .put(controller.updateSpeaker)
+
+        // Detach speaker from lecture.
+        .delete(controller.detachSpeaker);
 };

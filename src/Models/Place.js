@@ -9,7 +9,7 @@ const placesSchema = new Schema({
         required: true,
     },
     lectures: {
-        type: ['String'],
+        type: ['ObjectId'],
         required: false
     }
 });

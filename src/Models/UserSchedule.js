@@ -5,11 +5,11 @@ const Schema = mongoose.Schema;
 
 const userScheduleSchema = new Schema({
     user: {
-        type: 'Number',
+        type: 'ObjectId',
         required: true
     },
     lectures: {
-        type: ['Number'],
+        type: ['ObjectId'],
         required: false,
         default: undefined,
     }
