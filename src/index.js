@@ -5,6 +5,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const cors = require('cors');
+const cookieSesion = require('cookie-session');
 
 const multer = require('multer');
 const cloudinary = require('cloudinary');
@@ -60,16 +61,11 @@ app.use(cors({
     return callback(null, true);
   }
 }));
-app.enable('trust proxy'); // optional, not needed for secure cookies
-// app.use(express.session({
-//     secret : 'buildstuffSecretVeryMuchSecret',
-//     key : 'sid',
-//     proxy : true, // add this when behind a reverse proxy, if you need secure cookies
-//     cookie : {
-//         secure : true,
-//         maxAge: 5184000000 // 2 months
-//     }
-// }));
+app.use(cookieSesion({
+  secret: 'TopVerySecretSecret',
+  secureProxy: true
+}));
+
 
 if (environment !== 'production') {
   const logger = require('morgan');
