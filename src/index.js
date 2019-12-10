@@ -4,6 +4,7 @@ require('dotenv').config(); // Sets up dotenv as soon as our application starts
 const express = require('express');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
+const cors = require('cors');
 
 const multer = require('multer');
 const cloudinary = require('cloudinary');
@@ -33,6 +34,8 @@ const stage = require('./config')[environment];
 
 const routes = require('./Routes/index.js');
 
+const allowedOrigins = ['http://localhost:3000',
+                      'http://yourapp.com'];
 mongooseConn();
 
 app.use(bodyParser.json());
@@ -40,6 +43,21 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(parser.any());
+
+app.use(cors({
+  credentials: true,
+  origin: function(origin, callback){
+    // allow requests with no origin 
+    // (like mobile apps or curl requests)
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1){
+      var msg = 'The CORS policy for this site does not ' +
+                'allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+}));
 
 if (environment !== 'production') {
     app.use(logger('dev'));

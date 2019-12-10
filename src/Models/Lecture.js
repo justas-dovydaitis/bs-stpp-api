@@ -21,6 +21,10 @@ const lectureShema = new Schema({
     description: {
         type: 'String',
         required: true,
+    },
+    shortDescription: {
+        type: 'String',
+        required: true,
         trim: true,
     },
     speakers: {

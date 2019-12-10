@@ -9,8 +9,8 @@ const speakerSchema = new Schema({
         required: true,
     },
     image: {
-        data: 'Buffer',
-        contentType: 'String'
+        type: 'String',
+        trim: true
     },
     job: {
         type: 'String',

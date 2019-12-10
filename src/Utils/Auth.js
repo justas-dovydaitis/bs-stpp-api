@@ -23,7 +23,7 @@ const generateRefreshToken = (user) => {
     return refreshToken = jwt.sign(
         {
             user: user.email,
-            password: user.password,
+            role: user.role
         },
         process.env.REFRESH_SECRET,
         {
@@ -34,7 +34,7 @@ const generateRefreshToken = (user) => {
 }
 
 const validateRefreshToken = async (req, res, next) => {
-    const token = req.body.token || req.query.token || req.headers['x-access-token'];
+    const token = req.body.token || req.query.token || req.headers.authorization;
     if (token) {
 
         jwt.verify(token, process.env.REFRESH_SECRET, (err, decoded) => {
@@ -46,7 +46,7 @@ const validateRefreshToken = async (req, res, next) => {
                         "message": 'Unauthorised access.'
                     });
             }
-            req.decoded = decoded;
+            req.decoded = jwt.decode(token, {complete: true}).payload;
             next();
         });
     }
@@ -58,7 +58,7 @@ const validateRefreshToken = async (req, res, next) => {
     }
 }
 const validateAccessToken = async (req, res, next) => {
-    const token = req.body.token || req.query.token || req.headers['x-access-token'];
+    const token = req.body.token || req.query.token || req.headers['Authorization'];
     if (token) {
 
         jwt.verify(token, process.env.ACCESS_SECRET, (err, decoded) => {

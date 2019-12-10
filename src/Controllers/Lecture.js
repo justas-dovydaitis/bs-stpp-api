@@ -3,7 +3,7 @@ const Speaker = require('../Models/Speaker');
 
 module.exports = {
     create: (req, res) => {
-        Lecture.create({ ...req.body })
+        Lecture.create({ ...req.body, speakers: [] })
             .then((lecture) => {
                 res.status(201).json(lecture);
             })

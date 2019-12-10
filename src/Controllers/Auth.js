@@ -1,9 +1,6 @@
-const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const User = require('../Models/User');
 const { generateAccessToken, generateRefreshToken } = require('../Utils/Auth');
-
-const connUri = process.env.MONGODB_URL;
 
 module.exports = {
     login: async (req, res) => {
@@ -16,7 +13,8 @@ module.exports = {
                     if (match) {
                         status = 200;
                         result.accessToken = generateAccessToken(user);
-                        result.refreshToken = generateRefreshToken({ ...user, password: password });
+                        result.refreshToken = generateRefreshToken(user);
+
                         result.status = status;
                         result.result = user;
                     } else {
@@ -24,7 +22,9 @@ module.exports = {
                         result.status = status;
                         result.error = 'Authentication error.';
                     }
-                    res.status(status).send(result);
+                    res.status(status)
+                        .cookie('refreshToken', result.refreshToken, { maxAge: process.env.REFRESH_TOKEN_LIFE })
+                        .send(result);
                 }).catch(err => {
                     status = 500;
                     result.status = status;
@@ -59,10 +59,24 @@ module.exports = {
         });
     },
     token: (req, res) => {
-        let status = 200;
         let result = {};
-        result.accessToken = generateAccessToken({ user: decoded.email, role: decoded.role });
-        result.status = status;
-        res.status(status).send(result);
+        // console.log(req.decoded);
+        User.findOne({ email: req.decoded.user })
+            .then(user => {
+                // console.log(user);
+                if (user) {
+                    let tokenBody = { user: user.email, role: user.role }
+
+                    result.accessToken = generateAccessToken(user);
+                    res.status(200).send(result);
+
+                } else
+                    res.status(404).send({ error: "no such user" });
+            })
+            .catch((errors) => {
+                res.status(500).json({ errors });
+            })
+
+
     }
 }

@@ -3,6 +3,7 @@ const Lecture = require('../Models/Lecture');
 
 module.exports = {
     create: (req, res) => {
+        console.log(req.body)
         Speaker.create({ ...req.body, lectures: [] })
             .then((speaker) => {
                 res.status(201).json(speaker);
@@ -158,18 +159,20 @@ module.exports = {
                 if (speaker) {
                     Lecture.findById(req.params.lectureId)
                         .then((lecture) => {
+
                             if (lecture) {
                                 if (speaker.lectures.includes(lecture._id) && lecture.speakers.includes(place._id))
                                     res.status(304).json();
                                 else {
                                     if (!speaker.lectures.includes(lecture._id)) {
                                         speaker.lectures.push(lecture._id);
-                                        place.save();
+                                        speaker.save();
                                     }
-                                    if (!lecture.speakers.includes(place._id)) {
+                                    if (!lecture.speakers.includes(speaker._id)) {
                                         lecture.speakers.push(speaker._id);
                                         lecture.save();
                                     }
+
                                     res.status(200).json({});
                                 }
                             }
@@ -178,6 +181,7 @@ module.exports = {
                             }
                         })
                         .catch((errors) => {
+                            console.log('bybas')
                             res.status(500).json({
                                 errors,
                             })
