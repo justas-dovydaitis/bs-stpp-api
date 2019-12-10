@@ -36,7 +36,6 @@ const routes = require('./Routes/index.js');
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'http://192.168.0.106:3000',
   'https://buildstuff.orangecactus.lt'
 ];
 mongooseConn();
