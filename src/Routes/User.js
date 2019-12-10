@@ -6,12 +6,12 @@ module.exports = (router) => {
         // // Create user (registration).
         .post(controller.create)
         // // Get list of users.
-        .get(controller.getAll);
+        .get(utils.validateAccessToken, utils.checkIfAdmin, controller.getAll);
     router.route('/users/:id')
         // Get user by id.
-        .get(controller.getOne)
+        .get(utils.validateAccessToken, utils.checkUser, controller.getOne)
         // Update user by id.
-        .put(controller.update)
+        .put(utils.validateAccessToken, utils.checkUser, controller.update)
         // Delete user by id.
-        .delete(controller.delete);
+        .delete(utils.validateAccessToken, utils.checkUser, controller.delete);
 };

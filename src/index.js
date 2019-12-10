@@ -35,7 +35,7 @@ const stage = require('./config')[environment];
 const routes = require('./Routes/index.js');
 
 const allowedOrigins = ['http://localhost:3000',
-                      'http://yourapp.com'];
+                      'http://192.168.0.106:3000'];
 mongooseConn();
 
 app.use(bodyParser.json());

@@ -23,7 +23,7 @@ module.exports = {
                         result.error = 'Authentication error.';
                     }
                     res.status(status)
-                        .cookie('refreshToken', result.refreshToken, { maxAge: process.env.REFRESH_TOKEN_LIFE })
+                        .cookie('refreshToken', result.refreshToken, { maxAge: process.env.REFRESH_TOKEN_LIFE * 60 * 1000 })
                         .send(result);
                 }).catch(err => {
                     status = 500;
@@ -55,7 +55,9 @@ module.exports = {
                 result.status = status;
                 result.error = err;
             }
-            res.status(status).send(result);
+            res.status(status)
+                .cookie('refreshToken', result.refreshToken, { maxAge: process.env.REFRESH_TOKEN_LIFE * 60 * 1000 })
+                .send(result);
         });
     },
     token: (req, res) => {

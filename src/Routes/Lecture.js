@@ -8,7 +8,7 @@ module.exports = (router) => {
         .get(controller.getAll)
 
         // Creates a new lecture.
-        .post(controller.create);
+        .post(utils.validateAccessToken, utils.checkIfAdmin, controller.create);
 
     router.route('/lectures/:id')
 
@@ -16,10 +16,10 @@ module.exports = (router) => {
         .get(controller.getOne)
 
         // Updates lecture by given id.
-        .put(controller.update)
+        .put(utils.validateAccessToken, utils.checkIfAdmin, controller.update)
 
         // Deletes lecture by given id.
-        .delete(controller.delete);
+        .delete(utils.validateAccessToken, utils.checkIfAdmin, controller.delete);
 
     router.route('/lectures/:lectureId/speakers')
 
@@ -27,7 +27,7 @@ module.exports = (router) => {
         .get(controller.getSpeakers)
 
         // Creates a speaker and attaches to lecture.
-        .post(controller.createSpeaker)
+        .post(utils.validateAccessToken, utils.checkIfAdmin, controller.createSpeaker)
 
     router.route('/lectures/:lectureId/speakers/:speakerId')
 
@@ -35,11 +35,11 @@ module.exports = (router) => {
         .get(controller.getSpeaker)
 
         // Attatch speaker to lecture.
-        .post(controller.attachSpeaker)
+        .post(utils.validateAccessToken, utils.checkIfAdmin, controller.attachSpeaker)
 
         // Updates speaker.
-        .put(controller.updateSpeaker)
+        .put(utils.validateAccessToken, utils.checkIfAdmin, controller.updateSpeaker)
 
         // Detach speaker from lecture.
-        .delete(controller.detachSpeaker);
+        .delete(utils.validateAccessToken, utils.checkIfAdmin, controller.detachSpeaker);
 };

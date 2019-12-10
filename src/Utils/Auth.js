@@ -13,7 +13,7 @@ const generateAccessToken = (user) => {
         },
         process.env.ACCESS_SECRET,
         {
-            expiresIn: process.env.ACCESS_TOKEN_LIFE,
+            expiresIn: `${process.env.ACCESS_TOKEN_LIFE}min`,
             issuer: process.env.TOKEN_ISSUER
         }
     );
@@ -27,7 +27,7 @@ const generateRefreshToken = (user) => {
         },
         process.env.REFRESH_SECRET,
         {
-            expiresIn: process.env.REFRESH_TOKEN_LIFE,
+            expiresIn: `${process.env.REFRESH_TOKEN_LIFE}min`,
             issuer: process.env.TOKEN_ISSUER
         }
     );
@@ -42,23 +42,21 @@ const validateRefreshToken = async (req, res, next) => {
                 console.log(err)
                 return res.status(401).json(
                     {
-                        "error": true,
-                        "message": 'Unauthorised access.'
+                        error: 'Unauthorised access.'
                     });
             }
-            req.decoded = jwt.decode(token, {complete: true}).payload;
+            req.decoded = jwt.decode(token, { complete: true }).payload;
             next();
         });
     }
     else {
-        return res.status(403).send({
-            "error": true,
-            "message": 'No token provided.'
+        return res.status(401).json({
+            error: 'No token provided.'
         });
     }
 }
 const validateAccessToken = async (req, res, next) => {
-    const token = req.body.token || req.query.token || req.headers['Authorization'];
+    const token = req.body.token || req.query.token || req.headers.authorization;
     if (token) {
 
         jwt.verify(token, process.env.ACCESS_SECRET, (err, decoded) => {
@@ -66,8 +64,7 @@ const validateAccessToken = async (req, res, next) => {
                 console.log(err)
                 return res.status(401).json(
                     {
-                        "error": true,
-                        "message": 'Unauthorised access.'
+                        error: 'Unauthorised access.'
                     });
             }
             req.decoded = decoded;
@@ -75,64 +72,50 @@ const validateAccessToken = async (req, res, next) => {
         });
     }
     else {
-        return res.status(403).send({
-            "error": true,
-            "message": 'No token provided.'
+        return res.status(401).json({
+            error: 'No token provided.'
         });
     }
 }
 
 const checkIfAdmin = async (req, res, next) => {
-    let result = {};
-    mongoose.connect(connUri, { useNewUrlParser: true }, (err) => {
-        if (!err) {
-            const payload = req.decoded;
-            User.findOne({ email: payload.user }, (err, requestingUser) => {
-                if (requestingUser.isAdmin === false) {
-                    result.status = 403;
-                    result.error = 'Access forbidden.';
-                    result.result = {};
-                    res.status(403).send(result);
+    const payload = req.decoded;
+    User.findOne({ email: payload.user })
+        .then((requestingUser) => {
+            if (requestingUser) {
+                if (requestingUser.role != "ADMIN") {
+                    res.status(403).json({ error: "Access forbidden" });
                 }
-                else
-                    next();
-            });
-        }
-        else {
-            let status = 500;
-            result.status = status;
-            result.error = err;
-            res.status(status).send(result);
-        }
-    });
+                else next();
+            }
+            else {
+                res.status(404).json({ error: 'User data not found' });
+            }
+        })
+        .catch(errors => {
+            res.status(500).json(errors);
+        })
+
 };
 const checkUser = async (req, res, next) => {
-    let result = {};
-    mongoose.connect(connUri, { useNewUrlParser: true }, (err) => {
-        if (!err) {
-            const payload = req.decoded;
-            console.log('payload:', payload);
-            User.findOne({ email: payload.user }, (err, requestingUser) => {
-                console.log(requestingUser);
-                if (requestingUser._id.toString() === req.params.id) {
+    const payload = req.decoded;
+    User.findOne({ email: payload.user })
+        .then((requestingUser) => {
+            if (requestingUser) {
+                if ((requestingUser._id.toString() === req.params.id) || (requestingUser.role === "ADMIN")) {
                     next();
-
                 }
                 else {
-                    result.status = 403;
-                    result.error = 'Access forbidden.';
-                    result.result = {};
-                    res.status(403).send(result);
+                    res.status(403).json({ error: "Access forbidden" });
                 }
-            });
-        }
-        else {
-            let status = 500;
-            result.status = status;
-            result.error = err;
-            res.status(status).send(result);
-        }
-    });
+            }
+            else {
+                res.status(404).json({ error: 'User data not found' });
+            }
+        })
+        .catch((errors) => {
+            res.status(500).json({ errors });
+        });
 };
 module.exports = {
     checkIfAdmin,

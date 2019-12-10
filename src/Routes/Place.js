@@ -1,6 +1,7 @@
 const Place = require('../Models/Place');
 const controller = require('../Controllers/Place');
 const controllerGeneric = require('../Controllers/Generic');
+const utils = require('../Utils/Auth');
 
 const Lecture = require('../Models/Lecture');
 const Speaker = require('../Models/Speaker');
@@ -14,7 +15,7 @@ module.exports = (router) => {
         .get(controller.getAll)
 
         // Creates a new place
-        .post(controller.create);
+        .post(utils.validateAccessToken, utils.checkIfAdmin, controller.create);
 
     router.route('/places/:id/')
 
@@ -22,10 +23,10 @@ module.exports = (router) => {
         .get(controller.getOne)
 
         // Updates a place.
-        .put(controller.update)
+        .put(utils.validateAccessToken, utils.checkIfAdmin, controller.update)
 
         // Deletes a place.
-        .delete(controller.delete);
+        .delete(utils.validateAccessToken, utils.checkIfAdmin, controller.delete);
 
     router.route('/places/:id/lectures/')
 
@@ -33,7 +34,7 @@ module.exports = (router) => {
         .get(controller.getLectures)
 
         // Creates new lecture and attaches to a place;
-        .post(controller.createLecture);
+        .post(utils.validateAccessToken, utils.checkIfAdmin, controller.createLecture);
 
     router.route('/places/:placeId/lectures/:lectureId/')
 
@@ -41,13 +42,13 @@ module.exports = (router) => {
         .get(controller.getLecture)
 
         // Attach lecture to place.
-        .post(controller.attachLecture)
+        .post(utils.validateAccessToken, utils.checkIfAdmin, controller.attachLecture)
 
         // Updates lecture;
-        .put(controller.updateLecture)
+        .put(utils.validateAccessToken, utils.checkIfAdmin, controller.updateLecture)
 
         // Detach lecture from a place
-        .delete(controller.detachLecture);
+        .delete(utils.validateAccessToken, utils.checkIfAdmin, controller.detachLecture);
 
     router.route('/places/:placeId/lectures/:lectureId/speakers/')
 

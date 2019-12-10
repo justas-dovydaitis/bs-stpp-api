@@ -14,38 +14,28 @@ module.exports = {
                 result.status = status;
                 result.error = err;
             }
-            res.status(status).send(result);
+            res.status(status).json(result);
         });
     },
     getAll: (req, res) => {
-        let result = {};
-        let status = 200;
         const payload = req.decoded;
         if (payload) {
             User.find({}, (err, users) => {
                 if (!err) {
-                    result.status = status;
-                    result.error = err;
-                    result.result = users;
+                    res.status(200).json(users);
                 } else {
-                    status = 500;
-                    result.status = status;
-                    result.error = err;
+                    res.status(500).json(err);
                 }
-                res.status(status).send(result);
             });
         } else {
-            status = 401;
-            result.status = status;
-            result.error = 'Authentication error';
-            res.status(status).send(result);
+            res.status(401).json({ error: "Unauthorized" });
         }
     },
     getOne: (req, res) => {
         User.findById(req.params.id)
             .then((user) => {
                 if (user) {
-                    res.status(200).json();
+                    res.status(200).json({ user });
                 }
                 else {
                     res.status(404).json({ error: "Not found" });
@@ -77,7 +67,7 @@ module.exports = {
         User.findByIdAndDelete(req.params.id)
             .then((user) => {
                 if (user) {
-                    res.status(204).json();
+                    res.status(204).json({});
                 }
                 else {
                     res.status(404).json({ error: "Not found" });
