@@ -60,12 +60,22 @@ app.use(cors({
     return callback(null, true);
   }
 }));
+app.enable('trust proxy'); // optional, not needed for secure cookies
+// app.use(express.session({
+//     secret : 'buildstuffSecretVeryMuchSecret',
+//     key : 'sid',
+//     proxy : true, // add this when behind a reverse proxy, if you need secure cookies
+//     cookie : {
+//         secure : true,
+//         maxAge: 5184000000 // 2 months
+//     }
+// }));
 
 if (environment !== 'production') {
   const logger = require('morgan');
   app.use(logger('dev'));
 }
-app.use('/uploads/', express.static('uploads'));
+
 app.use('/api/', routes(router));
 
 app.listen(`${stage.port}`, () => {
