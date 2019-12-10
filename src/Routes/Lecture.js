@@ -1,5 +1,5 @@
 const controller = require('../Controllers/Lecture');
-// const utils = require('../Utils/Auth');
+const utils = require('../Utils/Auth');
 
 module.exports = (router) => {
     router.route('/lectures')

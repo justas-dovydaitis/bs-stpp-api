@@ -3,7 +3,7 @@ require('dotenv').config(); // Sets up dotenv as soon as our application starts
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const logger = require('morgan');
+
 const cors = require('cors');
 
 const multer = require('multer');
@@ -62,6 +62,7 @@ app.use(cors({
 }));
 
 if (environment !== 'production') {
+  const logger = require('morgan');
   app.use(logger('dev'));
 }
 app.use('/uploads/', express.static('uploads'));
