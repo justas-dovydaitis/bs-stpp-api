@@ -148,19 +148,24 @@ module.exports = {
                 if (lecture) {
                     Place.findById(req.params.placeId)
                         .then((place) => {
-                            if (place.lectures.contains(lecture._id) && (lecture.place === place.id)) {
-                                res.status(304).json();
+                            if (place) {
+                                if (place.lectures.contains(lecture._id) && (lecture.place === place.id)) {
+                                    res.status(304).json();
+                                }
+                                else {
+                                    if (!place.lectures.contains(lecture._id)) {
+                                        place.lectures.push(lecture._id);
+                                        place.save();
+                                    }
+                                    if (lecture.place !== place._id) {
+                                        lecture.place = placeId._id;
+                                        lecture.save();
+                                    }
+                                    res.status(200).json(lecture);
+                                }
                             }
                             else {
-                                if (!place.lectures.contains(lecture._id)) {
-                                    place.lectures.push(lecture._id);
-                                    place.save();
-                                }
-                                if (lecture.place !== place._id) {
-                                    lecture.place = placeId._id;
-                                    lecture.save();
-                                }
-                                res.status(200).json(lecture);
+                                res.status(404).json({ error: '{Place not found' });
                             }
                         })
                         .catch((errors) => {
