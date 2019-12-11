@@ -9,7 +9,7 @@ module.exports = {
                 res.status(201).json(newPlace);
             })
             .catch((errors) => {
-                res.status(500).json({
+                res.status(400).json({
                     errors,
                 });
             });
