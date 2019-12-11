@@ -12,7 +12,7 @@ module.exports = {
                 bcrypt.compare(password, user.password).then(match => {
                     if (match) {
                         status = 200;
-                        result.accessToken = generateAccessToken(user);
+                        result.accessToken = `Bearer ${generateAccessToken(user)}`;
                         result.refreshToken = generateRefreshToken(user);
 
                         result.status = status;
@@ -48,7 +48,7 @@ module.exports = {
             if (!err) {
                 result.status = status;
                 result.result = user;
-                result.accessToken = generateAccessToken(user);
+                result.accessToken = `Bearer ${generateAccessToken(user)}`;
                 result.refreshToken = generateRefreshToken({ ...user, password: password });
             } else {
                 status = 500;

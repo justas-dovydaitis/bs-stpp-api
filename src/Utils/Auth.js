@@ -56,26 +56,34 @@ const validateRefreshToken = async (req, res, next) => {
     }
 }
 const validateAccessToken = async (req, res, next) => {
-    const token = req.body.token || req.query.token || req.headers.authorization;
+    let token = req.body.token || req.query.token || req.headers.authorization;
     if (token) {
-
-        jwt.verify(token, process.env.ACCESS_SECRET, (err, decoded) => {
-            if (err) {
-                console.log(err)
-                return res.status(401).json(
-                    {
-                        error: 'Unauthorised access.'
-                    });
-            }
-            req.decoded = decoded;
-            next();
-        });
+        token = extractToken(token);
+        if (token) {
+            jwt.verify(token, process.env.ACCESS_SECRET, (err, decoded) => {
+                if (err) {
+                    console.log(err)
+                    return res.status(401).json(
+                        {
+                            error: 'Unauthorised access.'
+                        });
+                }
+                req.decoded = decoded;
+                next();
+            });
+        }
+        else {
+            return res.status(401).json({
+                error: 'Bearer token expected.'
+            });
+        }
     }
     else {
         return res.status(401).json({
             error: 'No token provided.'
         });
     }
+
 }
 
 const checkIfAdmin = async (req, res, next) => {
@@ -95,7 +103,6 @@ const checkIfAdmin = async (req, res, next) => {
         .catch(errors => {
             res.status(500).json(errors);
         })
-
 };
 const checkUser = async (req, res, next) => {
     const payload = req.decoded;
@@ -117,11 +124,20 @@ const checkUser = async (req, res, next) => {
             res.status(500).json({ errors });
         });
 };
+const extractToken = (token) => {
+    if (token.split(' ')[0] === 'Bearer') {
+        return token.split(' ')[1];
+    }
+    return false;
+
+}
+
 module.exports = {
     checkIfAdmin,
     checkUser,
     generateAccessToken,
     generateRefreshToken,
     validateAccessToken,
-    validateRefreshToken
+    validateRefreshToken,
+    extractToken
 };
