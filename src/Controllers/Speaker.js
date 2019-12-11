@@ -165,7 +165,7 @@ module.exports = {
                         .then((lecture) => {
 
                             if (lecture) {
-                                if (speaker.lectures.includes(lecture._id) && lecture.speakers.includes(place._id))
+                                if (speaker.lectures.includes(lecture._id) && lecture.speakers.includes(speaker._id))
                                     res.status(304).json();
                                 else {
                                     if (!speaker.lectures.includes(lecture._id)) {
@@ -238,19 +238,24 @@ module.exports = {
                     Lecture.findById(req.params.lectureId)
                         .then((lecture) => {
                             if (lecture) {
-                                if (speaker.lectures.includes(lecture._id) && lecture.speakers.includes(place._id))
+                                let a = !(speaker.lectures.includes(lecture._id))
+                                let b = !(lecture.speakers.includes(speaker._id))
+                                if (!(speaker.lectures.includes(lecture._id)) && !(lecture.speakers.includes(speaker._id)))
                                     res.status(304).json();
                                 else {
-                                    if (!speaker.lectures.includes(lecture._id)) {
-                                        speaker.lectures = place.lectures.filter((lid) => { return lid != lecture._id });
-                                        place.save()
+                                    if (speaker.lectures.includes(lecture._id)) {
+                                        speaker.lectures = speaker.lectures.filter((lid) => { return lid != lecture._id });
+                                        speaker.save()
                                             .then(() => {
-                                                if (!lecture.speakers.includes(place._id)) {
-                                                    lecture.speakers = lecture.speakers.filter((sid) => { return sid != speakerId._id });
-                                                    lecture.save().catch(errors => {
-                                                        res.status(500).json({
-                                                            errors,
-                                                        })
+                                                if (lecture.speakers.includes(speaker._id)) {
+                                                    lecture.speakers = lecture.speakers.filter((sid) => { return sid != speaker._id });
+                                                    lecture.save({}, err => {
+                                                        if (err) {
+                                                            res.status(500).json({ err })
+                                                        }
+                                                        else {
+                                                            res.status(200).json({ message: "OK" });
+                                                        }
                                                     });
                                                 }
                                             })
@@ -261,7 +266,6 @@ module.exports = {
                                             });
                                     }
 
-                                    res.status(200).json({});
                                 }
                             }
                             else {
@@ -275,7 +279,7 @@ module.exports = {
                         });
                 }
                 else {
-                    res.status(404).json({ error: 'Place not found' });
+                    res.status(404).json({ error: 'Speaker not found' });
                 }
             })
             .catch((errors) => {

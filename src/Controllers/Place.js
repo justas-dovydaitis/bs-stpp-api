@@ -231,16 +231,20 @@ module.exports = {
                                 if (place.lectures.includes(lecture._id) && lecture.place === place._id)
                                     res.status(304).json();
                                 else {
-                                    lecture.place = ''
+                                    lecture.place = undefined;
                                     place.lectures = place.lectures.filter((lid) => { return lid != lecture._id })
 
                                     lecture.save()
                                         .then(() => {
-                                            place.save().catch(errors => {
-                                                res.status(500).json({
-                                                    errors,
+                                            place.save()
+                                                .then(() => {
+                                                    res.status(200).json({});
                                                 })
-                                            });
+                                                .catch(errors => {
+                                                    res.status(500).json({
+                                                        errors,
+                                                    })
+                                                });
                                         })
                                         .catch(errors => {
                                             res.status(500).json({
@@ -249,7 +253,7 @@ module.exports = {
                                         });
 
 
-                                    res.status(200).json({});
+
                                 }
                             }
                             else {
