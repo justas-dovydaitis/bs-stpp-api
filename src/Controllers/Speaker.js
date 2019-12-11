@@ -244,11 +244,11 @@ module.exports = {
                                     res.status(304).json();
                                 else {
                                     if (speaker.lectures.includes(lecture._id)) {
-                                        speaker.lectures = speaker.lectures.filter((lid) => { return lid != lecture._id });
+                                        speaker.lectures.remove(lecture._id);
                                         speaker.save()
                                             .then(() => {
                                                 if (lecture.speakers.includes(speaker._id)) {
-                                                    lecture.speakers = lecture.speakers.filter((sid) => { return sid != speaker._id });
+                                                    lecture.speakers.remove(speaker._id);
                                                     lecture.save({}, err => {
                                                         if (err) {
                                                             res.status(500).json({ err })
