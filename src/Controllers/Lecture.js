@@ -153,29 +153,34 @@ module.exports = {
                     Place.findById(req.params.placeId)
                         .then((place) => {
                             if (place) {
-                                let placeUnchanged = place.lectures.includes(lecture._id)
-                                let lectureUnchanged = (lecture.place === place._id);
                                 if (place.lectures.includes(lecture._id) && (lecture.place === place._id)) {
                                     res.status(304).json(lecture);
                                 }
                                 else {
                                     if (!place.lectures.includes(lecture._id)) {
                                         place.lectures.push(lecture._id);
-                                        place.save().catch(errors => {
-                                            res.status(500).json({
-                                                errors,
+                                        place.save()
+                                            .then(place => {
+                                                lecture.place = place._id;
+                                                lecture.save()
+                                                    .then((lecture) => {
+                                                        res.status(200).json(lecture);
+                                                    })
+                                                    .catch(errors => {
+                                                        res.status(500).json({
+                                                            errors,
+                                                        })
+                                                    });
                                             })
-                                        });
+                                            .catch(errors => {
+                                                res.status(500).json({
+                                                    errors,
+                                                })
+
+                                            });
                                     }
-                                    if (lecture.place !== place._id) {
-                                        lecture.place = place._id;
-                                        lecture.save().catch(errors => {
-                                            res.status(500).json({
-                                                errors,
-                                            })
-                                        });
-                                    }
-                                    res.status(200).json(lecture);
+
+
                                 }
                             }
                             else {
