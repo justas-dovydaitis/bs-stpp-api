@@ -232,13 +232,13 @@ module.exports = {
                                     res.status(304).json();
                                 else {
                                     lecture.place = undefined;
-                                    place.lectures = place.lectures.filter((lid) => { return lid !== req.params.lectureId })
+                                    place.lectures.remove(req.params.lectureId);
 
                                     lecture.save()
                                         .then(() => {
                                             place.save()
                                                 .then(() => {
-                                                    res.status(200).json({ message: 'OK'});
+                                                    res.status(200).json({ message: 'OK' });
                                                 })
                                                 .catch(errors => {
                                                     res.status(500).json({
