@@ -47,4 +47,8 @@ module.exports = (router) => {
 
         // Get lecture's place
         .get(controller.getPlace);
+
+    router.route('/lectures/:lectureId/place/:placeId')
+        // Sets lecture's place by id.
+        .post(utils.validateAccessToken, utils.checkIfAdmin, controller.setPlace)
 };
