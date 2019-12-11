@@ -105,7 +105,11 @@ module.exports = {
                     Lecture.create({ ...req.body, place: place._id })
                         .then((lecture) => {
                             place.lectures.push(lecture._id);
-                            place.save();
+                            place.save().catch(errors => {
+                                res.status(500).json({
+                                    errors,
+                                })
+                            });
                             res.status(201).json(lecture);
                         })
                         .catch((errors) => {
@@ -166,8 +170,19 @@ module.exports = {
                                     lecture.place = place._id;
                                     place.lectures.push(lecture._id);
 
-                                    lecture.save();
-                                    place.save();
+                                    lecture.save()
+                                        .then(() => {
+                                            place.save().catch(errors => {
+                                                res.status(500).json({
+                                                    errors,
+                                                })
+                                            });
+                                        })
+                                        .catch(errors => {
+                                            res.status(500).json({
+                                                errors,
+                                            })
+                                        });
 
                                     res.status(200).json({});
                                 }
@@ -219,8 +234,20 @@ module.exports = {
                                     lecture.place = ''
                                     place.lectures = place.lectures.filter((lid) => { return lid != lecture._id })
 
-                                    lecture.save();
-                                    place.save();
+                                    lecture.save()
+                                        .then(() => {
+                                            place.save().catch(errors => {
+                                                res.status(500).json({
+                                                    errors,
+                                                })
+                                            });
+                                        })
+                                        .catch(errors => {
+                                            res.status(500).json({
+                                                errors,
+                                            })
+                                        });
+
 
                                     res.status(200).json({});
                                 }

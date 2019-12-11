@@ -93,7 +93,11 @@ module.exports = {
                     Speaker.create({ ...req.body, lectures: [req.params.lectureId] })
                         .then((speaker) => {
                             lecture.speakers.push(speaker._id);
-                            lecture.save();
+                            lecture.save().catch(errors => {
+                                res.status(500).json({
+                                    errors,
+                                })
+                            });
                             res.status(201).json(speaker);
                         })
                         .catch((errors) => {
@@ -149,17 +153,27 @@ module.exports = {
                     Place.findById(req.params.placeId)
                         .then((place) => {
                             if (place) {
-                                if (place.lectures.contains(lecture._id) && (lecture.place === place.id)) {
+                                let placeUnchanged = place.lectures.includes(lecture._id)
+                                let lectureUnchanged = (lecture.place === place._id);
+                                if (place.lectures.includes(lecture._id) && (lecture.place === place._id)) {
                                     res.status(304).json();
                                 }
                                 else {
-                                    if (!place.lectures.contains(lecture._id)) {
+                                    if (!place.lectures.includes(lecture._id)) {
                                         place.lectures.push(lecture._id);
-                                        place.save();
+                                        place.save().catch(errors => {
+                                            res.status(500).json({
+                                                errors,
+                                            })
+                                        });
                                     }
                                     if (lecture.place !== place._id) {
-                                        lecture.place = placeId._id;
-                                        lecture.save();
+                                        lecture.place = place._id;
+                                        lecture.save().catch(errors => {
+                                            res.status(500).json({
+                                                errors,
+                                            })
+                                        });
                                     }
                                     res.status(200).json(lecture);
                                 }
@@ -190,17 +204,25 @@ module.exports = {
                 if (lecture) {
                     Speaker.findById(req.params.speakerId)
                         .then((speaker) => {
-                            if (speaker.lectures.contains(lecture._id) && lecture.speakers.contains(speakerId)) {
+                            if (speaker.lectures.includes(lecture._id) && lecture.speakers.includes(speakerId)) {
                                 res.status(304).json();
                             }
                             else {
-                                if (!speaker.lectures.contains(lecture._id)) {
+                                if (!speaker.lectures.includes(lecture._id)) {
                                     speaker.lectures.push(lecture._id);
-                                    speaker.save();
+                                    speaker.save().catch(errors => {
+                                        res.status(500).json({
+                                            errors,
+                                        })
+                                    });
                                 }
-                                if (!lecture.speakers.contains(speakerId)) {
+                                if (!lecture.speakers.includes(speakerId)) {
                                     lecture.speakers.push(speaker._id);
-                                    lecture.save();
+                                    lecture.save().catch(errors => {
+                                        res.status(500).json({
+                                            errors,
+                                        })
+                                    });
                                 }
                                 res.status(200).json();
                             }
@@ -247,17 +269,25 @@ module.exports = {
                 if (lecture) {
                     Speaker.findById(req.params.speakerId)
                         .then((speaker) => {
-                            if (!speaker.lectures.contains(lecture._id) && !lecture.speakers.contains(speakerId)) {
+                            if (!speaker.lectures.includes(lecture._id) && !lecture.speakers.includes(speakerId)) {
                                 res.status(304).json();
                             }
                             else {
-                                if (speaker.lectures.contains(lecture._id)) {
+                                if (speaker.lectures.includes(lecture._id)) {
                                     speaker.lectures = speaker.lectures.filter((lid) => { return lid != lecture._id });
-                                    speaker.save();
+                                    speaker.save().catch(errors => {
+                                        res.status(500).json({
+                                            errors,
+                                        })
+                                    });
                                 }
-                                if (lecture.speakers.contains(speakerId)) {
+                                if (lecture.speakers.includes(speakerId)) {
                                     lecture.speakers.lecture.speakers.filter((sid) => { return sid != speaker._id });
-                                    lecture.save();
+                                    lecture.save().catch(errors => {
+                                        res.status(500).json({
+                                            errors,
+                                        })
+                                    });
                                 }
                                 res.status(200).json();
                             }

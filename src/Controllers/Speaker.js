@@ -105,7 +105,11 @@ module.exports = {
                     Lecture.create({ ...req.body, speakers: [speaker._id] })
                         .then((lecture) => {
                             speaker.lectures.push(lecture._id);
-                            speaker.save();
+                            speaker.save().catch(errors => {
+                                res.status(500).json({
+                                    errors,
+                                })
+                            });;
                             res.status(201).json(lecture);
                         })
                         .catch((errors) => {
@@ -166,12 +170,25 @@ module.exports = {
                                 else {
                                     if (!speaker.lectures.includes(lecture._id)) {
                                         speaker.lectures.push(lecture._id);
-                                        speaker.save();
+                                        speaker.save()
+                                            .then(() => {
+                                                if (!lecture.speakers.includes(speaker._id)) {
+                                                    lecture.speakers.push(speaker._id);
+                                                    lecture.save()
+                                                        .catch(errors => {
+                                                            res.status(500).json({
+                                                                errors,
+                                                            })
+                                                        });
+                                                }
+                                            })
+                                            .catch(errors => {
+                                                res.status(500).json({
+                                                    errors,
+                                                })
+                                            });
                                     }
-                                    if (!lecture.speakers.includes(speaker._id)) {
-                                        lecture.speakers.push(speaker._id);
-                                        lecture.save();
-                                    }
+
 
                                     res.status(200).json({});
                                 }
@@ -226,12 +243,24 @@ module.exports = {
                                 else {
                                     if (!speaker.lectures.includes(lecture._id)) {
                                         speaker.lectures = place.lectures.filter((lid) => { return lid != lecture._id });
-                                        place.save();
+                                        place.save()
+                                            .then(() => {
+                                                if (!lecture.speakers.includes(place._id)) {
+                                                    lecture.speakers = lecture.speakers.filter((sid) => { return sid != speakerId._id });
+                                                    lecture.save().catch(errors => {
+                                                        res.status(500).json({
+                                                            errors,
+                                                        })
+                                                    });
+                                                }
+                                            })
+                                            .catch(errors => {
+                                                res.status(500).json({
+                                                    errors,
+                                                })
+                                            });
                                     }
-                                    if (!lecture.speakers.includes(place._id)) {
-                                        lecture.speakers = lecture.speakers.filter((sid) => { return sid != speakerId._id });
-                                        lecture.save();
-                                    }
+
                                     res.status(200).json({});
                                 }
                             }

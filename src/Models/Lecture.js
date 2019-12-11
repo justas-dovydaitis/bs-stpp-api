@@ -6,12 +6,10 @@ const lectureShema = new Schema({
     starts: {
         type: 'Date',
         required: true,
-        min: new Date()
     },
     ends: {
         type: 'Date',
         required: true,
-        min: new Date()
     },
     name: {
         type: 'String',
