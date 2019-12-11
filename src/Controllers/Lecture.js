@@ -147,44 +147,22 @@ module.exports = {
             });
     },
     setPlace: (req, res) => {
-        Lecture.findById(req.params.lectureId)
+        Lecture.findByIdAndUpdate(req.params.lectureId, { place: req.params.placeId })
             .then((lecture) => {
                 if (lecture) {
-                    Place.findById(req.params.placeId)
+                    Place.findOneAndUpdate(
+                        {
+                            _id: req.params.placeId,
+                            'places.lectures': {
+                                $ne: req.params.lectureId
+                            }
+                        }, { $push: { lectures: req.params.lectureId } })
                         .then((place) => {
                             if (place) {
-                                if (place.lectures.includes(lecture._id) && (lecture.place === place._id)) {
-                                    res.status(304).json(lecture);
-                                }
-                                else {
-                                    if (!place.lectures.includes(lecture._id)) {
-                                        place.lectures.push(lecture._id);
-                                        place.save()
-                                            .then(place => {
-                                                lecture.place = place._id;
-                                                lecture.save()
-                                                    .then((lecture) => {
-                                                        res.status(200).json(lecture);
-                                                    })
-                                                    .catch(errors => {
-                                                        res.status(500).json({
-                                                            errors,
-                                                        })
-                                                    });
-                                            })
-                                            .catch(errors => {
-                                                res.status(500).json({
-                                                    errors,
-                                                })
-
-                                            });
-                                    }
-
-
-                                }
+                                res.status(200).json({ lecture: lecture, place: place });
                             }
                             else {
-                                res.status(404).json({ error: '{Place not found' });
+                                res.status(404).json({ error: "Place not found" })
                             }
                         })
                         .catch((errors) => {
@@ -194,7 +172,7 @@ module.exports = {
                         });
                 }
                 else {
-                    res.status(404).json({ error: 'Lecture not found' });
+                    res.status(404).json({ error: "Place not found" })
                 }
             })
             .catch((errors) => {
@@ -202,6 +180,7 @@ module.exports = {
                     errors,
                 })
             });
+
     },
     attachSpeaker: (req, res) => {
         Lecture.findById(req.params.lectureId)
