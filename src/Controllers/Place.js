@@ -228,17 +228,17 @@ module.exports = {
                     Lecture.findById(req.params.lectureId)
                         .then((lecture) => {
                             if (lecture) {
-                                if (place.lectures.includes(lecture._id) && lecture.place === place._id)
+                                if (!place.lectures.includes(lecture._id) && lecture.place !== place._id)
                                     res.status(304).json();
                                 else {
                                     lecture.place = undefined;
-                                    place.lectures = place.lectures.filter((lid) => { return lid != lecture._id })
+                                    place.lectures = place.lectures.filter((lid) => { return lid !== req.params.lectureId })
 
                                     lecture.save()
                                         .then(() => {
                                             place.save()
                                                 .then(() => {
-                                                    res.status(200).json({});
+                                                    res.status(200).json({ message: 'OK'});
                                                 })
                                                 .catch(errors => {
                                                     res.status(500).json({
