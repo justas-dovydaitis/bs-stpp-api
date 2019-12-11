@@ -42,4 +42,9 @@ module.exports = (router) => {
 
         // Detach speaker from lecture.
         .delete(utils.validateAccessToken, utils.checkIfAdmin, controller.detachSpeaker);
+
+    router.route('/lectures/:lectureId/place')
+
+        // Get lecture's place
+        .get(controller.getPlace);
 };

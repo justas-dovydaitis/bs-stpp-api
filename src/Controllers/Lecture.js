@@ -115,7 +115,22 @@ module.exports = {
         Speaker.findOne({ lectures: req.params.lectureId, _id: req.params.speakerId })
             .then((speaker) => {
                 if (speaker) {
-                    res.status(201).json(speaker);
+                    res.status(200).json(speaker);
+                } else {
+                    res.status(404).json({ error: 'Not found' });
+                }
+            })
+            .catch((errors) => {
+                res.status(500).json({
+                    errors,
+                })
+            });
+    },
+    getPlace: (req, res) => {
+        Place.findOne({ lectures: req.params.lectureId })
+            .then((place) => {
+                if (place) {
+                    res.status(200).json(place);
                 } else {
                     res.status(404).json({ error: 'Not found' });
                 }
