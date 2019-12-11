@@ -156,7 +156,7 @@ module.exports = {
                                 let placeUnchanged = place.lectures.includes(lecture._id)
                                 let lectureUnchanged = (lecture.place === place._id);
                                 if (place.lectures.includes(lecture._id) && (lecture.place === place._id)) {
-                                    res.status(304).json();
+                                    res.status(304).json(lecture);
                                 }
                                 else {
                                     if (!place.lectures.includes(lecture._id)) {
